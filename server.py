@@ -1,62 +1,131 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_hashing import Hashing
+from flask_mysqldb import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
+import pandas as pd
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a real secret key
-hashing = Hashing(app)
 
-# In-memory "database" to store user data
-users = {}
+# Secret key for sessions
+app.secret_key = 'your_secret_key'  # Change to a random secret key
 
-@app.route("/")
+# MySQL configurations
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'nyuad_crimes'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
+
+def run_statement(statement):
+    cursor = mysql.connection.cursor()
+    cursor.execute(statement)
+    results = cursor.fetchall()
+    mysql.connection.commit()
+    df = ""
+    if cursor.description:
+        column_names = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(results, columns=column_names)
+    cursor.close()
+    return df
+
+@app.route('/')
 def landing_page():
-    # Check if user is logged in
     if 'username' in session:
-        # Redirect to table choice page
         return redirect(url_for('choose_table'))
-    # Show the login page
-    return render_template("index.html")
+    return render_template('index.html')
 
-@app.route("/register", methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register_page():
     if request.method == 'POST':
         username = request.form['uname']
         password = request.form['pwd']
-        # Check if username already exists
-        if username in users:
+        hashed_password = generate_password_hash(password)
+        
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
+        user_exists = cursor.fetchone()
+        
+        if user_exists:
             flash('Username already exists!')
             return redirect(url_for('register_page'))
-        # Hash the password before storing it
-        hashed_password = hashing.hash_value(password, salt='abc')
-        users[username] = hashed_password
+        
+        cursor.execute('INSERT INTO users (username, password_hash) VALUES (%s, %s)', (username, hashed_password))
+        mysql.connection.commit()
+        cursor.close()
+        
         flash('User successfully registered!')
         return redirect(url_for('landing_page'))
-    return render_template("register.html")
+    return render_template('register.html')
 
-@app.route("/login", methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     username = request.form['uname']
     password = request.form['pwd']
-    # Validate user credentials
-    if username in users and hashing.check_value(users[username], password, salt='abc'):
-        session['username'] = username
+    
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
+    user = cursor.fetchone()
+    cursor.close()
+    
+    if user and check_password_hash(user['password_hash'], password):
+        session['username'] = user['username']
         return redirect(url_for('choose_table'))
+    
     flash('Invalid username or password!')
     return redirect(url_for('landing_page'))
 
-@app.route("/choose_table")
+@app.route('/choose_table')
 def choose_table():
     if 'username' not in session:
-        # Redirect to login page if not logged in
         return redirect(url_for('landing_page'))
-    # Render the table choice page
-    return render_template("choose_table.html", username=session['username'])
+    return render_template('choose_table.html', username=session['username'])
 
-@app.route("/logout")
+@app.route('/logout')
 def logout():
-    # Remove the user session
     session.pop('username', None)
     return redirect(url_for('landing_page'))
 
-if __name__ == "__main__":
+@app.route('/criminals')
+def criminals():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('criminals.html')
+
+# Explicit route for the 'crimes' table
+@app.route('/crimes')
+def crimes():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('crimes.html')
+
+# Explicit route for the 'crime_codes' table
+@app.route('/crime_codes')
+def crime_codes():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('crime_codes.html')
+
+# Explicit route for the 'sentencing' table
+@app.route('/sentencing')
+def sentencing():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('sentencing.html')
+
+# Explicit route for the 'appeals' table
+@app.route('/appeals')
+def appeals():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('appeals.html')
+
+# Explicit route for the 'police_officers' table
+@app.route('/police_officers')
+def police_officers():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('police_officers.html')
+
+if __name__ == '__main__':
     app.run(debug=True)
