@@ -231,35 +231,94 @@ def add_crime():
 
 @app.route('/search_criminals', methods=['GET', 'POST'])
 def search_criminals():
+    search_results = None  # Initialize the search results variable
     if 'username' not in session:
         return redirect(url_for('login'))  # Ensure the user is logged in
-    
-    search_results = None
-    if request.method == 'POST':
-        search_name = request.form.get('search_name')
-        search_id = request.form.get('search_id')
-        search_alias = request.form.get('search_alias')
 
+    if request.method == 'POST':
+        search_name = request.form['search_name']
         cursor = mysql.connection.cursor()
-        query = """
-        SELECT c.Criminal_ID, c.Name, a.Alias
-        FROM Criminals AS c
-        LEFT JOIN Criminal_Alias AS a ON c.Criminal_ID = a.Criminal_ID
-        WHERE c.Name LIKE %s OR c.Criminal_ID LIKE %s OR a.Alias LIKE %s
-        """
-        like_pattern = lambda term: f'%{term}%'
-        cursor.execute(query, (like_pattern(search_name), like_pattern(search_id), like_pattern(search_alias)))
+        like_string = f"%{search_name}%"
+        cursor.execute("SELECT * FROM Criminals WHERE Name LIKE %s", (like_string,))
         search_results = cursor.fetchall()
         cursor.close()
 
+    # Render the same template whether it's a GET or POST request
     return render_template('search_criminals.html', search_results=search_results)
 
-# Explicit route for the 'sentencing' table
-@app.route('/sentencing')
-def sentencing():
+@app.route('/sentencings', methods=['GET', 'POST'])
+def sentencings():
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-    return render_template('sentencing.html')
+    if request.method == 'POST':
+        search_query = request.form['search']
+        query = "SELECT * FROM sentencing WHERE Sentence_ID LIKE %s"
+        search_string = f'%{search_query}%'
+        sentencings_data = run_statement(query, [search_string, search_string])
+    else:
+        df = run_statement("SELECT * FROM sentencing;")
+        sentencings = []
+        for index, row in df.iterrows():
+            sentencings.append(row)
+    return render_template('sentencings.html', sentencings=sentencings)
+
+@app.route('/add_sentencings', methods=['GET', 'POST'])
+def add_sentencings():
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Ensure the user is logged in
+    if request.method == 'POST':
+        # Retrieve data from the form
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+        num_violations = request.form['num_violations']
+        sentence_type = request.form['sentence_type']
+
+        # Insert data into database
+        cursor = mysql.connection.cursor()
+        sql = "INSERT INTO sentencing (Start_Date, End_Date, Number_of_Violations, Type_of_Sentence) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (start_date, end_date, num_violations, sentence_type))
+        mysql.connection.commit()
+        cursor.close()
+        
+        flash('Sentencing record added successfully!')
+        return redirect(url_for('sentencings'))
+
+    return render_template('add_sentencings.html')
+
+
+@app.route('/edit_sentencings/<int:sentence_id>', methods=['GET', 'POST'])
+def edit_sentencings(sentence_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    if request.method == 'POST':
+        # Retrieve data from the form
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+        num_violations = request.form['num_violations']
+        sentence_type = request.form['sentence_type']
+
+        # Update data in the database
+        cursor = mysql.connection.cursor()
+        sql = "UPDATE sentencing SET Start_Date=%s, End_Date=%s, Number_of_Violations=%s, Type_of_Sentence=%s WHERE Sentence_ID=%s"
+        cursor.execute(sql, (start_date, end_date, num_violations, sentence_type, sentence_id))
+        mysql.connection.commit()
+        cursor.close()
+        
+        flash('Sentencing record updated successfully!')
+        return redirect(url_for('sentencings'))
+    else:
+        query = "SELECT * FROM sentencing WHERE Sentence_ID = %s"
+        sentencing = run_statement(query, (sentence_id,))
+        return render_template('edit_sentencings.html', sentencing=sentencing.iloc[0])
+
+@app.route('/delete_sentencings/<int:sentence_id>', methods=['POST'])
+def delete_sentencings(sentence_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    query = "DELETE FROM sentencing WHERE Sentence_ID = %s"
+    run_statement(query, (sentence_id,))
+    flash('Sentencing record deleted successfully!')
+    return redirect(url_for('sentencings'))
 
 # Explicit route for the 'appeals' table
 @app.route('/appeals')
