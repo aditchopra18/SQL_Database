@@ -22,14 +22,15 @@ h1 { text-align: center; }
 
 input[type=submit] {
   padding:5px 15px; 
-  background:#ccc; 
+  background:#5979ee; 
   border:0 none;
   cursor:pointer;
   border-radius: 5px; 
+  align-items: center;
 }
 
 input[type=submit]:hover {
-  background-color: #ccceee;
+  background-color: #8da2ee;
 }
 
 .msg {
@@ -53,7 +54,7 @@ footer {
 }
 
 .button {
-  background-color: #5979ee; /* Green */
+  background-color: #5979ee;
   border: none;
   color: white;
   padding: 15px 32px;
