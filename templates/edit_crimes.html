@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Crime</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/activity-styles.css') }}">
+</head>
+<body>
+    <h1>Edit Crime</h1>
+    <form method="POST">
+        <label for="classification">Classification:</label>
+        <input type="text" id="classification" name="classification" value="{{ crime['Classification'] }}" required><br><br>
+        
+        <label for="date_charged">Date Charged:</label>
+        <input type="date" id="date_charged" name="date_charged" value="{{ crime['Date_Charged'] }}" required><br><br>
+        
+        <label for="appeal_status">Appeal Status:</label>
+        <input type="text" id="appeal_status" name="appeal_status" value="{{ crime['Appeal_Status'] }}" required><br><br>
+        
+        <label for="hearing_date">Hearing Date:</label>
+        <input type="date" id="hearing_date" name="hearing_date" value="{{ crime['Hearing_Date'] }}" required><br><br>
+        
+        <input type="submit" value="Update">
+    </form>
+</body>
+</html>

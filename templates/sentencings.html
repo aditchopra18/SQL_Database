@@ -35,9 +35,8 @@
               class="btn btn-sm btn-warning">Edit</a>
           </td>
           <td>
-            <form method="POST" action="{{ url_for('delete_sentencings', sentence_id=sentencing['Sentence_ID']) }}"
-              style="display: inline;">
-              <input type="submit" value="Delete" class="btn btn-sm btn-danger">
+            <form action="{{ url_for('delete_sentencings', sentence_id=sentencing['Sentence_ID']) }}" method = "post" style="display: inline;">
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
             </form>
           </td>
         </tr>
