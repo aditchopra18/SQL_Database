@@ -11,12 +11,6 @@
 <body>
   <div class="container mt-5">
     <h1>Criminal Records</h1>
-    <form action="{{ url_for('search_criminals') }}" method="post" class="mb-3">
-      <div class="input-group">
-        <input type="text" class="form-control" id="search" name="search" placeholder="Search by Name, ID, etc.">
-        <button class="btn btn-outline-primary" type="submit">Search</button>
-      </div>
-    </form>
     <table class="table">
       <thead>
         <tr>
@@ -38,7 +32,6 @@
           <td>{{ criminal.Probation_Status }}</td>
           <td>
             <a href="{{ url_for('edit_criminal', criminal_id=criminal.Criminal_ID) }}" class="btn btn-sm btn-warning">Edit</a>
-            <a href="{{ url_for('delete_criminal', criminal_id=criminal.Criminal_ID) }}" class="btn btn-sm btn-danger">Delete</a>
           </td>
         </tr>
         {% endfor %}
