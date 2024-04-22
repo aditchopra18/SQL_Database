@@ -68,6 +68,9 @@ def login():
     if dev_password == 'police123':
         app.config['MYSQL_USER'] = 'Police_Role'
         app.config['MYSQL_PASSWORD'] = 'police_pass'
+    elif dev_password == 'developer123':
+        app.config['MYSQL_USER'] = 'Developer_Role'
+        app.config['MYSQL_PASSWORD'] = 'developer_pass'
     else:
         app.config['MYSQL_USER'] = 'Guest_Role'
         app.config['MYSQL_PASSWORD'] = 'guest_pass'
@@ -103,7 +106,9 @@ def logout():
 def criminals():
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-    return render_template('criminals.html')
+    query = "SELECT * FROM criminals"
+    criminals_data = run_statement(query)
+    return render_template('criminals.html', criminals=criminals_data)
 
 # Explicit route for the 'crimes' table
 @app.route('/crimes')
