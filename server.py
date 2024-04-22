@@ -6,12 +6,12 @@ import pandas as pd
 app = Flask(__name__)
 
 # Secret key for sessions
-app.secret_key = 'your_secret_key'  # Change to a random secret key
+app.secret_key = 'nyuad'  # Change to a random secret key
 
-# MySQL configurations
+# Basic MySQL configurations (used for guest access)
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_USER'] = 'Guest_Role'
+app.config['MYSQL_PASSWORD'] = 'guest_pass'
 app.config['MYSQL_DB'] = 'nyuad_crimes'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
@@ -62,14 +62,27 @@ def register_page():
 def login():
     username = request.form['uname']
     password = request.form['pwd']
-    
+    dev_password = request.form.get('dev_pwd', '')
+
+    # Check if the developer password is correct to set admin privileges
+    if dev_password == 'police123':
+        app.config['MYSQL_USER'] = 'Police_Role'
+        app.config['MYSQL_PASSWORD'] = 'police_pass'
+    else:
+        app.config['MYSQL_USER'] = 'Guest_Role'
+        app.config['MYSQL_PASSWORD'] = 'guest_pass'
+
+    # Reinitialize MySQL connection with new user privileges
+    mysql.init_app(app)
+
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
     user = cursor.fetchone()
     cursor.close()
-    
+
     if user and check_password_hash(user['password_hash'], password):
         session['username'] = user['username']
+        session['user_role'] = 'admin' if dev_password == 'developer123' else 'guest'
         return redirect(url_for('choose_table'))
     
     flash('Invalid username or password!')
