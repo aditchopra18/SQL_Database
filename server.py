@@ -154,7 +154,7 @@ def add_criminal():
 
     return render_template('add_criminal.html')
 
-@app.route('/edit_criminal>', methods=['GET', 'POST'])
+@app.route('/edit_criminal/<int:criminal_id>', methods=['GET', 'POST'])
 def edit_criminal(criminal_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
@@ -171,15 +171,15 @@ def edit_criminal(criminal_id):
         query = "SELECT * FROM criminals WHERE Criminal_ID = %s"
         criminal = run_statement(query, (criminal_id,))
         return render_template('edit_criminal.html', criminal=criminal.iloc[0])
-
-# @app.route('/delete_criminal/>', methods=['POST'])
-# def delete_criminal(criminal_id):
-#     if 'username' not in session:
-#         return redirect(url_for('landing_page'))
-#     query = "DELETE FROM criminals WHERE Criminal_ID = %s"
-#     run_statement(query, (criminal_id,))
-#     flash('Criminal deleted successfully!')
-#     return redirect(url_for('criminals'))
+    
+@app.route('/delete_criminal/<int:criminal_id>', methods=['POST'])
+def delete_criminal(criminal_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    query = "DELETE FROM criminals WHERE Criminal_ID = %s"
+    run_statement(query, (criminal_id,))
+    flash('Criminal deleted successfully!')
+    return redirect(url_for('criminals'))
 
 # Explicit route for the 'crimes' table
 @app.route('/crimes')

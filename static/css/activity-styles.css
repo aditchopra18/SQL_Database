@@ -12,6 +12,11 @@ input, textarea {
   font-size: small;
 }
 
+header img {
+  height: 100px;
+  width: auto;
+}
+
 div {
   margin-left: auto;
   margin-right: auto;

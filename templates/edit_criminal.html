@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello, World!</title>
+    <title>Edit Criminal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/activity-styles.css') }}">
 </head>
 <body>
-    <h1>Hello, World!</h1>
+    <h1>Edit Criminal</h1>
+    <form method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ criminal['Name'] }}" required><br><br>
+        
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" value="{{ criminal['Address'] }}" required><br><br>
+        
+        <label for="violent">Violent Offender Status:</label>
+        <input type="text" id="violent" name="violent" value="{{ criminal['Violent_Offender_Status'] }}" required><br><br>
+        
+        <label for="probation">Probation Status:</label>
+        <input type="text" id="probation" name="probation" value="{{ criminal['Probation_Status'] }}" required><br><br>
+        
+        <input type="submit" value="Update">
+    </form>
 </body>
 </html>
