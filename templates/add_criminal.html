@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Criminal</title>
+</head>
+<body>
+    <form action="{{ url_for('add_criminal') }}" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+        <label for="violent">Violent Offender Status:</label>
+        <input type="text" id="violent" name="violent" required>
+        <label for="probation">Probation Status:</label>
+        <input type="text" id="probation" name="probation" required>
+        <button type="submit">Add Criminal</button>
+    </form>
+</body>
+</html>
