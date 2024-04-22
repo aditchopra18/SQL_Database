@@ -10,13 +10,7 @@
 </head>
 <body>
   <div class="container mt-5">
-    <h1>Appeals Records</h1>
-    <!--<form action="{{ url_for('search_appeals') }}" method="post" class="mb-3">-->
-      <div class="input-group">
-        <input type="text" class="form-control" id="search" name="search" placeholder="Search by Appeal ID, Date, etc.">
-        <button class="btn btn-outline-primary" type="submit">Search</button>
-      </div>
-    </form>
+    <h1>Appeal Records</h1>
     <table class="table">
       <thead>
         <tr>
@@ -30,21 +24,24 @@
       <tbody>
         {% for appeal in appeals %}
         <tr>
-          <th scope="row">{{ appeal.Appeal_ID }}</th>
-          <td>{{ appeal.Appeal_Filing_Date }}</td>
-          <td>{{ appeal.Appeal_Hearing_Date }}</td>
-          <td>{{ appeal.Status }}</td>
-          <td>
-            <a href="{{ url_for('edit_appeal', appeal_id=appeal.Appeal_ID) }}" class="btn btn-sm btn-warning">Edit</a>
-            <a href="{{ url_for('delete_appeal', appeal_id=appeal.Appeal_ID) }}" class="btn btn-sm btn-danger">Delete</a>
-          </td>
+            <th>{{ appeal['Appeal_ID'] }}</th>
+            <td>{{ appeal['Appeal_Filing_Date'] }}</td>
+            <td>{{ appeal['Appeal_Hearing_Date'] }}</td>
+            <td>{{ appeal['Status'] }}</td>
+            <td>
+              <a href="{{ url_for('edit_appeal', appeal_id=appeal['Appeal_ID']) }}" class="btn btn-sm btn-warning">Edit</a>
+              <form action="{{ url_for('delete_appeal', appeal_id=appeal['Appeal_ID']) }}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>            
+            </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    <a href="{{ url_for('add_appeal') }}" class="btn btn-success">Add New Appeal Record</a>
+    <a href="{{ url_for('add_appeal') }}" class="btn btn-success">Add New Appeal</a>
+    <a href="{{ url_for('search_appeals') }}" class="btn btn-success">Search Appeal</a>
   </div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
