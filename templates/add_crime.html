@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Crime</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Add New Crime</h2>
+    <form method="post">
+        Classification: <input type="text" name="classification" required class="form-control"><br>
+        Date Charged: <input type="date" name="date_charged" required class="form-control"><br>
+        Appeal Status: <select name="appeal_status" class="form-control">
+                           <option value="Pending">Pending</option>
+                           <option value="Completed">Completed</option>
+                       </select><br>
+        Hearing Date: <input type="date" name="hearing_date" required class="form-control"><br>
+        Amount of Fine: <input type="number" name="amount_fine" required class="form-control" min="0"><br>
+        Court Fee: <input type="number" name="court_fee" required class="form-control" min="0"><br>
+        Amount Paid: <input type="number" name="amount_paid" required class="form-control" min="0"><br>
+        Payment Due Date: <input type="date" name="payment_due_date" required class="form-control"><br>
+        Charge Status: <select name="charge_status" class="form-control">
+                           <option value="Open">Open</option>
+                           <option value="Closed">Closed</option>
+                       </select><br>
+        Crime Codes: <div id="code_fields">
+                         <input type="text" name="codes[]" class="form-control" placeholder="Crime Code"><br>
+                     </div>
+        <button type="button" onclick="addCode()" class="btn btn-secondary">Add More Codes</button><br><br>
+        <button type="submit" class="btn btn-primary">Add Crime</button>
+    </form>
+</div>
+<script>
+function addCode() {
+    $('#code_fields').append('<input type="text" name="codes[]" class="form-control" placeholder="Crime Code"><br>');
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

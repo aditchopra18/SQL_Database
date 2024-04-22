@@ -188,12 +188,46 @@ def crimes():
         return redirect(url_for('landing_page'))
     return render_template('crimes.html')
 
-# Explicit route for the 'crime_codes' table
-@app.route('/crime_codes')
-def crime_codes():
+@app.route('/add_crimes', methods=['GET', 'POST'])
+def add_crime():
     if 'username' not in session:
-        return redirect(url_for('landing_page'))
-    return render_template('crime_codes.html')
+        return redirect(url_for('login'))  # Ensure the user is logged in
+
+    if request.method == 'POST':
+        classification = request.form['classification']
+        date_charged = request.form['date_charged']
+        appeal_status = request.form['appeal_status']
+        hearing_date = request.form['hearing_date']
+        amount_fine = request.form['amount_fine']
+        court_fee = request.form['court_fee']
+        amount_paid = request.form['amount_paid']
+        payment_due_date = request.form['payment_due_date']
+        charge_status = request.form['charge_status']
+        codes = request.form.getlist('codes[]')
+
+        # Insert data into database
+        cursor = mysql.connection.cursor()
+        sql = """
+        INSERT INTO Crimes (Classification, Date_Charged, Appeal_Status, Hearing_Date, Amount_Of_Fine, Court_Fee, Amount_Paid, Payment_Due_Date, Charge_Status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(sql, (classification, date_charged, appeal_status, hearing_date, amount_fine, court_fee, amount_paid, payment_due_date, charge_status))
+        crime_id = cursor.lastrowid
+
+        # Insert crime codes
+        code_sql = "INSERT INTO Crime_Codes (Crime_ID, Crime_Code) VALUES (%s, %s)"
+        for code in codes:
+            if code:  # Ensure the code is not empty
+                cursor.execute(code_sql, (crime_id, code))
+
+        mysql.connection.commit()
+        cursor.close()
+        flash('Crime and associated codes added successfully!')
+        return redirect(url_for('crimes'))
+
+    return render_template('add_crime.html')
+
+
 
 # Explicit route for the 'sentencing' table
 @app.route('/sentencing')
