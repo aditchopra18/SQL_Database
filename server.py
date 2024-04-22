@@ -229,7 +229,30 @@ def add_crime():
 
     return render_template('add_crime.html')
 
+@app.route('/search_criminals', methods=['GET', 'POST'])
+def search_criminals():
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Ensure the user is logged in
+    
+    search_results = None
+    if request.method == 'POST':
+        search_name = request.form.get('search_name')
+        search_id = request.form.get('search_id')
+        search_alias = request.form.get('search_alias')
 
+        cursor = mysql.connection.cursor()
+        query = """
+        SELECT c.Criminal_ID, c.Name, a.Alias
+        FROM Criminals AS c
+        LEFT JOIN Criminal_Alias AS a ON c.Criminal_ID = a.Criminal_ID
+        WHERE c.Name LIKE %s OR c.Criminal_ID LIKE %s OR a.Alias LIKE %s
+        """
+        like_pattern = lambda term: f'%{term}%'
+        cursor.execute(query, (like_pattern(search_name), like_pattern(search_id), like_pattern(search_alias)))
+        search_results = cursor.fetchall()
+        cursor.close()
+
+    return render_template('search_criminals.html', search_results=search_results)
 
 # Explicit route for the 'sentencing' table
 @app.route('/sentencing')
