@@ -173,7 +173,7 @@ def edit_criminal(criminal_id):
         return render_template('edit_criminal.html', criminal=criminal.iloc[0])
 
 
-@app.route('/delete_criminal/<int:criminal_id>', methods=['POST'])
+@app.route('/delete_criminal/<int:criminal_id>', methods=['GET', 'POST'])
 def delete_criminal(criminal_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
