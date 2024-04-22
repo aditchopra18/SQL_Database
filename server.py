@@ -10,8 +10,8 @@ app.secret_key = 'nyuad'  # Change to a random secret key
 
 # Basic MySQL configurations (used for guest access)
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'Guest_Role'
-app.config['MYSQL_PASSWORD'] = 'guest_pass'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'nyuad_crimes'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
@@ -63,20 +63,6 @@ def login():
     username = request.form['uname']
     password = request.form['pwd']
     dev_password = request.form.get('dev_pwd', '')
-
-    # Check if the developer password is correct to set admin privileges
-    if dev_password == 'police123':
-        app.config['MYSQL_USER'] = 'Police_Role'
-        app.config['MYSQL_PASSWORD'] = 'police_pass'
-    elif dev_password == 'developer123':
-        app.config['MYSQL_USER'] = 'Developer_Role'
-        app.config['MYSQL_PASSWORD'] = 'developer_pass'
-    else:
-        app.config['MYSQL_USER'] = 'Guest_Role'
-        app.config['MYSQL_PASSWORD'] = 'guest_pass'
-
-    # Reinitialize MySQL connection with new user privileges
-    mysql.init_app(app)
 
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
