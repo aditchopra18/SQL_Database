@@ -131,5 +131,19 @@ def police_officers():
         return redirect(url_for('landing_page'))
     return render_template('police_officers.html')
 
+# Route for editing a criminal
+@app.route('/edit_criminal/<int:criminal_id>', methods=['GET', 'POST'])
+def edit_criminal(criminal_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('edit_criminal.html', criminal_id=criminal_id)
+
+# Route for adding a new criminal
+@app.route('/add_criminal', methods=['GET', 'POST'])
+def add_criminal():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    return render_template('add_criminal.html')
+
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
