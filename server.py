@@ -117,16 +117,39 @@ def run_statement(statement, params=None):
 @app.route('/add_criminal', methods=['GET', 'POST'])
 def add_criminal():
     if 'username' not in session:
-        return redirect(url_for('landing_page'))
+        return redirect(url_for('login'))  # Ensure the user is logged in
+
     if request.method == 'POST':
         name = request.form['name']
         address = request.form['address']
-        violent = request.form['violent']
-        probation = request.form['probation']
-        query = "INSERT INTO criminals (Name, Address, Violent_Offender_Status, Probation_Status) VALUES (%s, %s, %s, %s)"
-        run_statement(query, (name, address, violent, probation))
-        flash('Criminal added successfully!')
+        violent = request.form['violent'] == 'Yes'
+        probation = request.form['probation'] == 'Yes'
+        aliases = request.form.getlist('aliases[]')
+        phones = request.form.getlist('phones[]')
+
+        # Insert data into database
+        cursor = mysql.connection.cursor()
+        sql = "INSERT INTO criminals (Name, Address, Violent_Offender, On_Probation) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (name, address, violent, probation))
+        criminal_id = cursor.lastrowid  # Get the last inserted id
+
+        # Insert aliases
+        alias_sql = "INSERT INTO criminal_alias (Criminal_ID, Alias) VALUES (%s, %s)"
+        for alias in aliases:
+            if alias:  # Ensure alias is not empty
+                cursor.execute(alias_sql, (criminal_id, alias))
+
+        # Insert phone numbers
+        phone_sql = "INSERT INTO criminal_phonenumber (Criminal_ID, Phone_Number) VALUES (%s, %s)"
+        for phone in phones:
+            if phone:  # Ensure phone number is not empty
+                cursor.execute(phone_sql, (criminal_id, phone))
+
+        mysql.connection.commit()
+        cursor.close()
+        flash('Criminal added successfully with aliases and phone numbers!')
         return redirect(url_for('criminals'))
+
     return render_template('add_criminal.html')
 
 @app.route('/edit_criminal>', methods=['GET', 'POST'])
