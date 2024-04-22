@@ -183,52 +183,75 @@ def delete_criminal(criminal_id):
         flash('Criminal deleted successfully!')
         return redirect(url_for('criminals'))
 
-# Explicit route for the 'crimes' table
-@app.route('/crimes')
+@app.route('/crimes', methods=['GET', 'POST'])
 def crimes():
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-    return render_template('crimes.html')
+    if request.method == 'POST':
+        search_query = request.form['search']
+        query = "SELECT * FROM crimes WHERE Crime_ID LIKE %s"
+        search_string = f'%{search_query}%'
+        crimes_data = run_statement(query, [search_string, search_string])
+    else:
+        df = run_statement("SELECT * FROM crimes;")
+        crimes = []
+        for index, row in df.iterrows():
+            crimes.append(row)
+    return render_template('crimes.html', crimes=crimes)
 
 @app.route('/add_crimes', methods=['GET', 'POST'])
-def add_crime():
+def add_crimes():
     if 'username' not in session:
         return redirect(url_for('login'))  # Ensure the user is logged in
-
     if request.method == 'POST':
         classification = request.form['classification']
         date_charged = request.form['date_charged']
         appeal_status = request.form['appeal_status']
         hearing_date = request.form['hearing_date']
-        amount_fine = request.form['amount_fine']
-        court_fee = request.form['court_fee']
-        amount_paid = request.form['amount_paid']
-        payment_due_date = request.form['payment_due_date']
-        charge_status = request.form['charge_status']
-        codes = request.form.getlist('codes[]')
 
         # Insert data into database
         cursor = mysql.connection.cursor()
-        sql = """
-        INSERT INTO Crimes (Classification, Date_Charged, Appeal_Status, Hearing_Date, Amount_Of_Fine, Court_Fee, Amount_Paid, Payment_Due_Date, Charge_Status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(sql, (classification, date_charged, appeal_status, hearing_date, amount_fine, court_fee, amount_paid, payment_due_date, charge_status))
-        crime_id = cursor.lastrowid
-
-        # Insert crime codes
-        code_sql = "INSERT INTO Crime_Codes (Crime_ID, Crime_Code) VALUES (%s, %s)"
-        for code in codes:
-            if code:  # Ensure the code is not empty
-                cursor.execute(code_sql, (crime_id, code))
+        sql = "INSERT INTO crimes (Classification, Date_Charged, Appeal_Status, Hearing_Date) VALUES (%s, %s, %s, %s)"
+        cursor.execute(sql, (classification, date_charged, appeal_status, hearing_date))
+        crime_id = cursor.lastrowid  # Get the last inserted id
 
         mysql.connection.commit()
         cursor.close()
-        flash('Crime and associated codes added successfully!')
+        flash('Crime added successfully!')
         return redirect(url_for('crimes'))
 
-    return render_template('add_crime.html')
+    return render_template('add_crimes.html')
 
+@app.route('/edit_crimes/<int:crime_id>', methods=['GET', 'POST'])
+def edit_crimes(crime_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    if request.method == 'POST':
+        classification = request.form['classification']
+        date_charged = request.form['date_charged']
+        appeal_status = request.form['appeal_status']
+        hearing_date = request.form['hearing_date']
+        query = "UPDATE crimes SET Classification=%s, Date_Charged=%s, Appeal_Status=%s, Hearing_Date=%s WHERE Crime_ID=%s"
+        run_statement(query, (classification, date_charged, appeal_status, hearing_date, crime_id))
+        flash('Crime updated successfully!')
+        return redirect(url_for('crimes'))
+    else:
+        query = "SELECT * FROM crimes WHERE Crime_ID = %s"
+        crime = run_statement(query, (crime_id,))
+        return render_template('edit_crimes.html', crime=crime.iloc[0])
+
+
+@app.route('/delete_crimes/<int:crime_id>', methods=['POST'])
+def delete_crimes(crime_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    if request.method == 'POST':
+        query = "DELETE FROM crimes WHERE Crime_ID = %s"
+        run_statement(query, (crime_id,))
+        flash('Crime deleted successfully!')
+        return redirect(url_for('crimes'))
+
+        
 @app.route('/search_criminals', methods=['GET', 'POST'])
 def search_criminals():
     search_results = None  # Initialize the search results variable
