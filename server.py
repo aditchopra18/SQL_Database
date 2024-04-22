@@ -129,7 +129,7 @@ def add_criminal():
 
         # Insert data into database
         cursor = mysql.connection.cursor()
-        sql = "INSERT INTO criminals (Name, Address, Violent_Offender, On_Probation) VALUES (%s, %s, %s, %s)"
+        sql = "INSERT INTO criminals (Name, Address, Violent_Offender_Status, Probation_Status) VALUES (%s, %s, %s, %s)"
         cursor.execute(sql, (name, address, violent, probation))
         criminal_id = cursor.lastrowid  # Get the last inserted id
 
