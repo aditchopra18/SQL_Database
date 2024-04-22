@@ -98,9 +98,11 @@ def criminals():
         search_string = f'%{search_query}%'
         criminals_data = run_statement(query, [search_string, search_string])
     else:
-        query = "SELECT * FROM criminals"
-        criminals_data = run_statement(query)
-    return render_template('criminals.html', criminals=criminals_data)
+        df = run_statement("SELECT * FROM criminals;")
+        criminals = []
+        for index, row in df.iterrows():
+            criminals.append(row)
+    return render_template('criminals.html', criminals=criminals)
 
 def run_statement(statement, params=None):
     cursor = mysql.connection.cursor()

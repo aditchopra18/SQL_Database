@@ -31,18 +31,18 @@
       <tbody>
         {% for criminal in criminals %}
         <tr>
-          <th scope="row">{{ criminal.Criminal_ID }}</th>
-          <td>{{ criminal.Name }}</td>
-          <td>{{ criminal.Address }}</td>
-          <td>{{ criminal.Violent_Offender_Status }}</td>
-          <td>{{ criminal.Probation_Status }}</td>
-          <td>
-            <a href="{{ url_for('edit_criminal') }}" class="btn btn-sm btn-warning">Edit</a>
-          </td>
+            <th>{{ criminal['Criminal_ID'] }}</th>
+            <td>{{ criminal['Name'] }}</td>
+            <td>{{ criminal['Address'] }}</td>
+            <td>{{ criminal['Violent_Offender_Status'] }}</td>
+            <td>{{ criminal['Probation_Status'] }}</td>
+            <td>
+                <a href="{{ url_for('edit_criminal') }}" class="btn btn-sm btn-warning">Edit</a>
+            </td>
         </tr>
         {% endfor %}
-      </tbody>
-    </table>
+    </tbody>
+  </table>
     <a href="{{ url_for('add_criminal') }}" class="btn btn-success">Add New Criminal</a>
   </div>
   
