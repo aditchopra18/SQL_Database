@@ -31,7 +31,7 @@
           <td>{{ criminal.Violent_Offender_Status }}</td>
           <td>{{ criminal.Probation_Status }}</td>
           <td>
-            <a href="{{ url_for('edit_criminal', criminal_id=criminal.Criminal_ID) }}" class="btn btn-sm btn-warning">Edit</a>
+            <a href="{{ url_for('edit_criminal') }}" class="btn btn-sm btn-warning">Edit</a>
           </td>
         </tr>
         {% endfor %}
