@@ -17,6 +17,15 @@
                             <option value="Not Appealed">Not Appealed</option>
                        </select><br>
         Hearing Date: <input type="date" name="hearing_date" required class="form-control"><br>
+        Amount Of Fine: <input type="number" name="amount_of_fine" required class="form-control" step="0.01"><br>
+        Court Fee: <input type="number" name="court_fee" required class="form-control" step="0.01"><br>
+        Amount Paid: <input type="number" name="amount_paid" required class="form-control" step="0.01"><br>
+        Payment Due Date: <input type="date" name="payment_due_date" required class="form-control"><br>
+        Charge Status: <select name="charge_status" class="form-control">
+                            <option value="Open">Open</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Pending">Pending</option>
+                       </select><br>
         <button type="submit" class="btn btn-primary">Add Crime</button>
     </form>
 </div>
