@@ -18,7 +18,22 @@
         
         <label for="hearing_date">Hearing Date:</label>
         <input type="date" id="hearing_date" name="hearing_date" value="{{ crime['Hearing_Date'] }}" required><br><br>
-        
+
+        <label for="amount_of_fine">Amount of Fine:</label>
+        <input type="text" id="amount_of_fine" name="amount_of_fine" value="{{ crime['Amount_Of_Fine'] }}" required><br><br>
+
+        <label for="court_fee">Court Fee:</label>
+        <input type="text" id="court_fee" name="court_fee" value="{{ crime['Court_Fee'] }}" required><br><br>
+
+        <label for="amount_paid">Amount Paid:</label>
+        <input type="text" id="amount_paid" name="amount_paid" value="{{ crime['Amount_Paid'] }}" required><br><br>
+
+        <label for="payment_due_date">Payment Due Date:</label>
+        <input type="date" id="payment_due_date" name="payment_due_date" value="{{ crime['Payment_Due_Date'] }}" required><br><br>
+
+        <label for="charge_status">Charge Status:</label>
+        <input type="text" id="charge_status" name="charge_status" value="{{ crime['Charge_Status'] }}" required><br><br>
+
         <input type="submit" value="Update">
     </form>
 </body>

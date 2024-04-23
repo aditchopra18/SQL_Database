@@ -248,14 +248,27 @@ def edit_crimes(crime_id):
         date_charged = request.form['date_charged']
         appeal_status = request.form['appeal_status']
         hearing_date = request.form['hearing_date']
-        query = "UPDATE crimes SET Classification=%s, Date_Charged=%s, Appeal_Status=%s, Hearing_Date=%s WHERE Crime_ID=%s"
-        run_statement(query, (classification, date_charged, appeal_status, hearing_date, crime_id))
+        amount_of_fine = request.form['amount_of_fine']
+        court_fee = request.form['court_fee']
+        amount_paid = request.form['amount_paid']
+        payment_due_date = request.form['payment_due_date']
+        charge_status = request.form['charge_status']
+
+        query = """UPDATE crimes SET Classification=%s, Date_Charged=%s, Appeal_Status=%s, Hearing_Date=%s, 
+                   Amount_Of_Fine=%s, Court_Fee=%s, Amount_Paid=%s, Payment_Due_Date=%s, Charge_Status=%s
+                   WHERE Crime_ID=%s"""
+        run_statement(query, (classification, date_charged, appeal_status, hearing_date, amount_of_fine, court_fee, 
+                              amount_paid, payment_due_date, charge_status, crime_id))
         flash('Crime updated successfully!')
         return redirect(url_for('crimes'))
     else:
         query = "SELECT * FROM crimes WHERE Crime_ID = %s"
         crime = run_statement(query, (crime_id,))
+        if crime.empty:
+            flash("No crime found with the given ID.")
+            return redirect(url_for('crimes'))
         return render_template('edit_crimes.html', crime=crime.iloc[0])
+
 
 @app.route('/delete_crimes/<int:crime_id>', methods=['GET', 'POST'])
 def delete_crimes(crime_id):
