@@ -280,6 +280,22 @@ def delete_crimes(crime_id):
         flash('Crime deleted successfully!')
         return redirect(url_for('crimes'))
 
+@app.route('/search_crimes', methods=['GET', 'POST'])
+def search_crimes():
+    search_results = None  # Initialize the search results variable
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Ensure the user is logged in
+
+    if request.method == 'POST':
+        search_name = request.form['search_name']
+        cursor = mysql.connection.cursor()
+        like_string = f"%{search_name}%"
+        cursor.execute("SELECT * FROM Crimes WHERE Crime LIKE %s", (like_string,))
+        search_results = cursor.fetchall()
+        cursor.close()
+
+    # Render the same template whether it's a GET or POST request
+    return render_template('search_criminals.html', search_results=search_results)
         
 @app.route('/sentencings', methods=['GET', 'POST'])
 def sentencings():
@@ -424,6 +440,35 @@ def edit_police_officers(badge_number):
         cursor.close()
 
         return render_template('edit_police_officers.html', officer=officer)
+
+@app.route('/delete_police_officers/<int:badge_number>', methods=['POST'])
+def delete_police_officers(badge_number):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+
+    cursor = mysql.connection.cursor()
+    delete_query = "DELETE FROM Police_Officers WHERE Badge_Number = %s"
+    cursor.execute(delete_query, (badge_number,))
+    mysql.connection.commit()
+    cursor.close()
+    flash('Police officer deleted successfully!', 'success')
+    return redirect(url_for('police_officers'))
+
+@app.route('/search_police_officers', methods=['GET', 'POST'])
+def search_police_officers():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+
+    search_results = None
+    if request.method == 'POST':
+        search_name = request.form['search_name']
+        cursor = mysql.connection.cursor()
+        query = "SELECT * FROM Police_Officers WHERE Name LIKE %s"
+        cursor.execute(query, ('%' + search_name + '%',))
+        search_results = cursor.fetchall()
+        cursor.close()
+
+    return render_template('search_police_officers.html', search_results=search_results)
 
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
