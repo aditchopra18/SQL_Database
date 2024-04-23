@@ -21,6 +21,11 @@
           <th scope="col">Date_Charged</th>
           <th scope="col">Appeal_Status</th>
           <th scope="col">Hearing_Date</th>
+          <th scope="col">Amount_Of_Fine</th>
+          <th scope="col">Court_Fee</th>
+          <th scope="col">Amount_Paid</th>
+          <th scope="col">Payment_Due_Date</th>
+          <th scope="col">Charge_Status</th>
           <th scope="col">Actions</th>
         </tr>
       </thead>
@@ -32,6 +37,12 @@
           <td>{{ crime['Date_Charged'] }}</td>
           <td>{{ crime['Appeal_Status'] }}</td>
           <td>{{ crime['Hearing_Date'] }}</td>
+          <td>{{ crime['Amount_Of_Fine'] }}</td>
+          <td>{{ crime['Court_Fee'] }}</td>
+          <td>{{ crime['Amount_Paid'] }}</td>
+          <td>{{ crime['Payment_Due_Date'] }}</td>
+          <td>{{ crime['Charge_Status'] }}</td>
+          <td>{{ crime['Actions'] }}</td>
           <td>
             <a href="{{ url_for('edit_crimes', crime_id=crime['Crime_ID']) }}" class="btn btn-sm btn-warning">Edit</a>
           </td>

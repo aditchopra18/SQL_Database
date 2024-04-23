@@ -172,7 +172,6 @@ def edit_criminal(criminal_id):
         criminal = run_statement(query, (criminal_id,))
         return render_template('edit_criminal.html', criminal=criminal.iloc[0])
 
-
 @app.route('/delete_criminal/<int:criminal_id>', methods=['GET', 'POST'])
 def delete_criminal(criminal_id):
     if 'username' not in session:
@@ -239,7 +238,6 @@ def edit_crimes(crime_id):
         query = "SELECT * FROM crimes WHERE Crime_ID = %s"
         crime = run_statement(query, (crime_id,))
         return render_template('edit_crimes.html', crime=crime.iloc[0])
-
 
 @app.route('/delete_crimes/<int:crime_id>', methods=['GET', 'POST'])
 def delete_crimes(crime_id):
