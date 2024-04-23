@@ -370,12 +370,71 @@ def delete_sentencings(sentence_id):
     flash('Sentencing record deleted successfully!')
     return redirect(url_for('sentencings'))
 
-# Explicit route for the 'appeals' table
 @app.route('/appeals')
 def appeals():
+    # Check if the user is logged in
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-    return render_template('appeals.html')
+
+    # Retrieve appeals data from the database
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Appeals")
+    appeals_data = cursor.fetchall()
+    cursor.close()
+
+    # Render the appeals template with the appeals data
+    return render_template('appeals.html', appeals=appeals_data)
+
+@app.route('/add_appeals', methods=['GET', 'POST'])
+def add_appeals():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        filing_date = request.form['filing_date']
+        hearing_date = request.form['hearing_date']
+        status = request.form['status']
+
+        # Insert data into the database
+        cursor = mysql.connection.cursor()
+        sql = "INSERT INTO appeals (Appeal_Filing_Date, Appeal_Hearing_Date, Status) VALUES (%s, %s, %s)"
+        cursor.execute(sql, (filing_date, hearing_date, status))
+        mysql.connection.commit()
+        cursor.close()
+        flash('Appeal added successfully!')
+        return redirect(url_for('appeals'))
+
+    return render_template('add_appeals.html')
+
+@app.route('/edit_appeals/<int:appeal_id>', methods=['GET', 'POST'])
+def edit_appeals(appeal_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+
+    if request.method == 'POST':
+        filing_date = request.form['filing_date']
+        hearing_date = request.form['hearing_date']
+        status = request.form['status']
+
+        # Update the appeal in the database
+        query = "UPDATE appeals SET Appeal_Filing_Date=%s, Appeal_Hearing_Date=%s, Status=%s WHERE Appeal_ID=%s"
+        run_statement(query, (filing_date, hearing_date, status, appeal_id))
+        flash('Appeal updated successfully!')
+        return redirect(url_for('appeals'))
+    else:
+        query = "SELECT * FROM appeals WHERE Appeal_ID = %s"
+        appeal = run_statement(query, (appeal_id,))
+        return render_template('edit_appeals.html', appeal=appeal.iloc[0])
+
+@app.route('/delete_appeals/<int:appeal_id>', methods=['POST'])
+def delete_appeals(appeal_id):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+
+    query = "DELETE FROM appeals WHERE Appeal_ID = %s"
+    run_statement(query, (appeal_id,))
+    flash('Appeal deleted successfully!')
+    return redirect(url_for('appeals'))
 
 @app.route('/police_officers')
 def police_officers():
