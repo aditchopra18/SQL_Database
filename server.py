@@ -29,6 +29,18 @@ def run_statement(statement):
     cursor.close()
     return df
 
+def run_statement(statement, params=None):
+    cursor = mysql.connection.cursor()
+    cursor.execute(statement, params or ())
+    results = cursor.fetchall()
+    mysql.connection.commit()
+    df = ""
+    if cursor.description:
+        column_names = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(results, columns=column_names)
+    cursor.close()
+    return df
+
 @app.route('/')
 def landing_page():
     if 'username' in session:
@@ -104,17 +116,6 @@ def criminals():
             criminals.append(row)
     return render_template('criminals.html', criminals=criminals)
 
-def run_statement(statement, params=None):
-    cursor = mysql.connection.cursor()
-    cursor.execute(statement, params or ())
-    results = cursor.fetchall()
-    mysql.connection.commit()
-    df = ""
-    if cursor.description:
-        column_names = [desc[0] for desc in cursor.description]
-        df = pd.DataFrame(results, columns=column_names)
-    cursor.close()
-    return df
 
 @app.route('/add_criminal', methods=['GET', 'POST'])
 def add_criminal():
@@ -182,6 +183,23 @@ def delete_criminal(criminal_id):
         run_statement(query, (criminal_id,))
         flash('Criminal deleted successfully!')
         return redirect(url_for('criminals'))
+
+@app.route('/search_criminals', methods=['GET', 'POST'])
+def search_criminals():
+    search_results = None  # Initialize the search results variable
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Ensure the user is logged in
+
+    if request.method == 'POST':
+        search_name = request.form['search_name']
+        cursor = mysql.connection.cursor()
+        like_string = f"%{search_name}%"
+        cursor.execute("SELECT * FROM Criminals WHERE Name LIKE %s", (like_string,))
+        search_results = cursor.fetchall()
+        cursor.close()
+
+    # Render the same template whether it's a GET or POST request
+    return render_template('search_criminals.html', search_results=search_results)
 
 @app.route('/crimes', methods=['GET', 'POST'])
 def crimes():
@@ -252,23 +270,6 @@ def delete_crimes(crime_id):
         return redirect(url_for('crimes'))
 
         
-@app.route('/search_criminals', methods=['GET', 'POST'])
-def search_criminals():
-    search_results = None  # Initialize the search results variable
-    if 'username' not in session:
-        return redirect(url_for('login'))  # Ensure the user is logged in
-
-    if request.method == 'POST':
-        search_name = request.form['search_name']
-        cursor = mysql.connection.cursor()
-        like_string = f"%{search_name}%"
-        cursor.execute("SELECT * FROM Criminals WHERE Name LIKE %s", (like_string,))
-        search_results = cursor.fetchall()
-        cursor.close()
-
-    # Render the same template whether it's a GET or POST request
-    return render_template('search_criminals.html', search_results=search_results)
-
 @app.route('/sentencings', methods=['GET', 'POST'])
 def sentencings():
     if 'username' not in session:
