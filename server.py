@@ -436,6 +436,22 @@ def delete_appeals(appeal_id):
     flash('Appeal deleted successfully!')
     return redirect(url_for('appeals'))
 
+@app.route('/search_appeals', methods=['GET', 'POST'])
+def search_appeals():
+    search_results = None
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        search_id = request.form['search_id']
+        cursor = mysql.connection.cursor()
+        like_string = f"%{search_id}%"
+        cursor.execute("SELECT * FROM appeals WHERE Appeal_ID LIKE %s", (like_string,))
+        search_results = cursor.fetchall()
+        cursor.close()
+
+    return render_template('search_appeals.html', search_results=search_results)
+
 @app.route('/police_officers')
 def police_officers():
     if 'username' not in session:
@@ -527,6 +543,24 @@ def search_police_officers():
         cursor.close()
 
     return render_template('search_police_officers.html', search_results=search_results)
+
+@app.route('/search_sentencings', methods=['GET', 'POST'])
+def search_sentencings():
+    search_results = None  # Initialize the search results variable
+    if 'username' not in session:
+        return redirect(url_for('login'))  # Ensure the user is logged in
+
+    if request.method == 'POST':
+        search_name = request.form['search_name']
+        cursor = mysql.connection.cursor()
+        like_string = f"%{search_name}%"
+        cursor.execute("SELECT * FROM Sentencings WHERE Type_of_Sentence LIKE %s", (like_string,))
+        search_results = cursor.fetchall()
+        cursor.close()
+
+    # Render the same template whether it's a GET or POST request
+    return render_template('search_sentencings.html', search_results=search_results)
+
 
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
