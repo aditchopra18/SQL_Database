@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
+import os
 
 app = Flask(__name__)
+POLICE_OFFICER_PASSWORD = 'nyuad'
 
 # Secret key for sessions
 app.secret_key = 'nyuad'  # Change to a random secret key
@@ -325,7 +327,7 @@ def add_sentencings():
 
         # Insert data into database
         cursor = mysql.connection.cursor()
-        sql = "INSERT INTO sentencing (Start_Date, End_Date, Number_of_Violations, Type_of_Sentence) VALUES (%s, %s, %s, %s, %s)"
+        sql = "INSERT INTO sentencing (Start_Date, End_Date, Number_of_Violations, Type_of_Sentence) VALUES (%s, %s, %s, %s)"
         cursor.execute(sql, (start_date, end_date, num_violations, sentence_type))
         mysql.connection.commit()
         cursor.close()
@@ -554,7 +556,7 @@ def search_sentencings():
         search_name = request.form['search_name']
         cursor = mysql.connection.cursor()
         like_string = f"%{search_name}%"
-        cursor.execute("SELECT * FROM Sentencings WHERE Type_of_Sentence LIKE %s", (like_string,))
+        cursor.execute("SELECT * FROM sentencing WHERE Type_of_Sentence LIKE %s", (like_string,))
         search_results = cursor.fetchall()
         cursor.close()
 

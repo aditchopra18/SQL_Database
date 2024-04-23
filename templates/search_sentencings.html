@@ -21,11 +21,10 @@
                 <th>End_Date</th>
                 <th>Number_of_Violations</th>
                 <th>Type_of_Sentence</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for officer in search_results %}
+            {% for sentencing in search_results %}
             <tr>
                 <th>{{ sentencing['Sentence_ID'] }}</th>
                 <td>{{ sentencing['Start_Date'] }}</td>
