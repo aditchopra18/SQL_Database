@@ -362,12 +362,68 @@ def appeals():
         return redirect(url_for('landing_page'))
     return render_template('appeals.html')
 
-# Explicit route for the 'police_officers' table
 @app.route('/police_officers')
 def police_officers():
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-    return render_template('police_officers.html')
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM Police_Officers")
+    officers = cursor.fetchall()
+    cursor.close()
+
+    return render_template('police_officers.html', police_officers=officers)
+
+@app.route('/add_police_officers', methods=['GET', 'POST'])
+def add_police_officers():
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+
+    if request.method == 'POST':
+        badge_number = request.form['badgeNumber']
+        name = request.form['name']
+        precinct = request.form['precinct']
+        status = request.form['status']
+
+        cursor = mysql.connection.cursor()
+        insert_query = """INSERT INTO Police_Officers (Badge_Number, Name, Precinct, Status) 
+                          VALUES (%s, %s, %s, %s)"""
+        cursor.execute(insert_query, (badge_number, name, precinct, status))
+        mysql.connection.commit()
+        cursor.close()
+        
+        flash('Police officer added successfully!', 'success')
+        return redirect(url_for('police_officers'))
+
+    # If it's a GET request, just render the template
+    return render_template('add_police_officers.html')
+
+@app.route('/edit_police_officers/<int:badge_number>', methods=['GET', 'POST'])
+def edit_police_officers(badge_number):
+    if 'username' not in session:
+        return redirect(url_for('landing_page'))
+    
+    cursor = mysql.connection.cursor()
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        precinct = request.form['precinct']
+        status = request.form['status']
+
+        update_query = """UPDATE Police_Officers 
+                          SET Name = %s, Precinct = %s, Status = %s 
+                          WHERE Badge_Number = %s"""
+        cursor.execute(update_query, (name, precinct, status, badge_number))
+        mysql.connection.commit()
+        flash('Police officer updated successfully!', 'success')
+        return redirect(url_for('police_officers'))
+    
+    else:
+        cursor.execute("SELECT * FROM Police_Officers WHERE Badge_Number = %s", (badge_number,))
+        officer = cursor.fetchone()
+        cursor.close()
+
+        return render_template('edit_police_officers.html', officer=officer)
 
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
