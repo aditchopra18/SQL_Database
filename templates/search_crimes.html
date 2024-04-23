@@ -1,0 +1,56 @@
+<!DOCClassification html>
+<html>
+<head>
+    <title>Search Crimes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <h2>Search for a Crime by Classification</h2>
+    <form method="post">
+        Crime Classification: <input Classification="text" name="search_type" required class="form-control"><br>
+        <button Classification="submit" class="btn btn-primary">Search</button>
+    </form>
+    {% if search_results is not none %}
+    <h2>Search Results</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Crime_ID</th>
+                <th>Classification</th>
+                <th>Date_Charged</th>
+                <th>Appeal_Status</th>
+                <th>Hearing_Date</th>
+                <th>Amount_Of_Fine</th>
+                <th>Court_Fee</th>
+                <th>Amount_Paid</th>
+                <th>Payment_Due_Date</th>
+                <th>Charge_Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for crime in search_results %}
+            <tr>
+                <th>{{ crime['Crime_ID'] }}</th>
+                <td>{{ crime['Classification'] }}</td>
+                <td>{{ crime['Date_Charged'] }}</td>
+                <td>{{ crime['Appeal_Status'] }}</td>
+                <td>{{ crime['Hearing_Date'] }}</td>
+                <td>{{ crime['Amount_Of_Fine'] }}</td>
+                <td>{{ crime['Court_Fee'] }}</td>
+                <td>{{ crime['Amount_Paid'] }}</td>
+                <td>{{ crime['Payment_Due_Date'] }}</td>
+                <td>{{ crime['Charge_Status'] }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No crimes found with the provided Classification.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
