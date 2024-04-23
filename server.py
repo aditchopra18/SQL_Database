@@ -76,7 +76,7 @@ def register_page():
 def login():
     username = request.form['uname']
     password = request.form['pwd']
-    dev_password = request.form.get('dev_pwd', '')
+    dev_password = request.form.get('dev_pwd', None)
 
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
@@ -86,6 +86,10 @@ def login():
     if user and check_password_hash(user['password_hash'], password):
         session['username'] = user['username']
         session['user_role'] = 'admin' if dev_password == 'developer123' else 'guest'
+        if dev_password and dev_password == POLICE_OFFICER_PASSWORD:
+            session['user_role'] = 'developer'
+        else:
+            session['user_role'] = 'guest'
         return redirect(url_for('choose_table'))
     
     flash('Invalid username or password!')
@@ -121,8 +125,9 @@ def criminals():
 
 @app.route('/add_criminal', methods=['GET', 'POST'])
 def add_criminal():
-    if 'username' not in session:
-        return redirect(url_for('login'))  # Ensure the user is logged in
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect('criminals')
 
     if request.method == 'POST':
         name = request.form['name']
@@ -161,6 +166,9 @@ def add_criminal():
 def edit_criminal(criminal_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('criminals'))
     if request.method == 'POST':
         name = request.form['name']
         address = request.form['address']
@@ -179,6 +187,9 @@ def edit_criminal(criminal_id):
 def delete_criminal(criminal_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('criminals'))
     if request.method == 'POST':
         query = "DELETE FROM criminals WHERE Criminal_ID = %s"
         run_statement(query, (criminal_id,))
@@ -222,6 +233,10 @@ def crimes():
 def add_crimes():
     if 'username' not in session:
         return redirect(url_for('login'))  # Ensure the user is logged in
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect('crimes')
+
     if request.method == 'POST':
         classification = request.form['classification']
         date_charged = request.form['date_charged']
@@ -245,6 +260,10 @@ def add_crimes():
 def edit_crimes(crime_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('crimes'))
+
     if request.method == 'POST':
         classification = request.form['classification']
         date_charged = request.form['date_charged']
@@ -276,6 +295,10 @@ def edit_crimes(crime_id):
 def delete_crimes(crime_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('crimes'))
+
     if request.method == 'POST':
         query = "DELETE FROM crimes WHERE Crime_ID = %s"
         run_statement(query, (crime_id,))
@@ -318,6 +341,10 @@ def sentencings():
 def add_sentencings():
     if 'username' not in session:
         return redirect(url_for('login'))  # Ensure the user is logged in
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect('sentencings')
+
     if request.method == 'POST':
         # Retrieve data from the form
         start_date = request.form['start_date']
@@ -342,6 +369,10 @@ def add_sentencings():
 def edit_sentencings(sentence_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('sentencings'))
+
     if request.method == 'POST':
         # Retrieve data from the form
         start_date = request.form['start_date']
@@ -367,6 +398,9 @@ def edit_sentencings(sentence_id):
 def delete_sentencings(sentence_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('sentencings'))
     query = "DELETE FROM sentencing WHERE Sentence_ID = %s"
     run_statement(query, (sentence_id,))
     flash('Sentencing record deleted successfully!')
@@ -391,6 +425,9 @@ def appeals():
 def add_appeals():
     if 'username' not in session:
         return redirect(url_for('login'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect('appeals')
 
     if request.method == 'POST':
         filing_date = request.form['filing_date']
@@ -412,7 +449,9 @@ def add_appeals():
 def edit_appeals(appeal_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('appeals'))
     if request.method == 'POST':
         filing_date = request.form['filing_date']
         hearing_date = request.form['hearing_date']
@@ -432,7 +471,9 @@ def edit_appeals(appeal_id):
 def delete_appeals(appeal_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('appeals'))
     query = "DELETE FROM appeals WHERE Appeal_ID = %s"
     run_statement(query, (appeal_id,))
     flash('Appeal deleted successfully!')
@@ -470,7 +511,9 @@ def police_officers():
 def add_police_officers():
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect('police_officers')
     if request.method == 'POST':
         badge_number = request.form['badgeNumber']
         name = request.form['name']
@@ -494,6 +537,9 @@ def add_police_officers():
 def edit_police_officers(badge_number):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('police_officers'))
     
     cursor = mysql.connection.cursor()
     
@@ -521,7 +567,9 @@ def edit_police_officers(badge_number):
 def delete_police_officers(badge_number):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
-
+    if 'username' not in session or session.get('user_role') != 'developer':
+        flash('You do not have permission to act on this page.')
+        return redirect(url_for('police_officers'))
     cursor = mysql.connection.cursor()
     delete_query = "DELETE FROM Police_Officers WHERE Badge_Number = %s"
     cursor.execute(delete_query, (badge_number,))
@@ -562,7 +610,6 @@ def search_sentencings():
 
     # Render the same template whether it's a GET or POST request
     return render_template('search_sentencings.html', search_results=search_results)
-
 
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
