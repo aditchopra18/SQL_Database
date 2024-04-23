@@ -241,7 +241,7 @@ def edit_crimes(crime_id):
         return render_template('edit_crimes.html', crime=crime.iloc[0])
 
 
-@app.route('/delete_crimes/<int:crime_id>', methods=['POST'])
+@app.route('/delete_crimes/<int:crime_id>', methods=['GET', 'POST'])
 def delete_crimes(crime_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
@@ -334,7 +334,7 @@ def edit_sentencings(sentence_id):
         sentencing = run_statement(query, (sentence_id,))
         return render_template('edit_sentencings.html', sentencing=sentencing.iloc[0])
 
-@app.route('/delete_sentencings/<int:sentence_id>', methods=['POST'])
+@app.route('/delete_sentencings/<int:sentence_id>', methods=['GET', 'POST'])
 def delete_sentencings(sentence_id):
     if 'username' not in session:
         return redirect(url_for('landing_page'))
